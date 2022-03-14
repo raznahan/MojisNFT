@@ -8,4 +8,7 @@ typechain
 cache
 artifacts
 
+#progress report files
+progress-report
+
 

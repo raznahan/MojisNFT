@@ -7,7 +7,7 @@ import "hardhat/console.sol";
 contract MyEpicNFT {
 
 constructor(){
-    console.log("Enjoying Buildspace's web3 tutorials!");
+    console.log("Enjoying Buildspace's  web3 tutorials!");
 }
 
 }
