@@ -2,12 +2,25 @@
 
 pragma solidity ^0.8.1;
 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
-contract MyEpicNFT {
+contract MyEpicNFT is ERC721URIStorage {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
-constructor(){
-    console.log("Enjoying Buildspace's  web3 tutorials!");
-}
+    constructor() ERC721("SquareNFT", "SQUAR") {
+        console.log("Enjoying Buildspace's  web3 tutorials!");
+    }
 
+    function makeAnEpicNFT() public{
+
+        uint256 newItemId = _tokenIds.current();
+        _safeMint(msg.sender, newItemId);
+        _setTokenURI(newItemId, "https://jsonkeeper.com/b/J72Z");
+        
+        console.log("An NFT w/ ID %s has been minted to %s",newItemId,msg.sender);
+        _tokenIds.increment();
+    }
 }
