@@ -11,4 +11,5 @@ artifacts
 #progress report files
 /progress-reports
 config.env
-
+website/build
+website/node_modules
