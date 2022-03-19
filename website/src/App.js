@@ -9,36 +9,62 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_LINK = '';
 const TOTAL_MINT_COUNT = 50;
 
-// I moved the contract address to the top for easy access.
-const CONTRACT_ADDRESS = "0x673A044183e81e9AF890A0C80a21D70d440E8c01";
+const CONTRACT_ADDRESS = "0xEC6Ef6062A8b3ba02257cFF35a9bB83A1bD239F4";
+const { ethereum } = window;
 
 const App = () => {
 
-    const [currentAccount, setCurrentAccount] = useState("");
-    
-    const checkIfWalletIsConnected = async () => {
-      const { ethereum } = window;
+  const [currentAccount, setCurrentAccount] = useState("");
+  const [maxMint, setMaxMint] = useState("0");
+  const [minted, setMinted] = useState("0");
+  const [mintButtonDisabled,setMintButtonDisabled] =useState(false);
 
-      if (!ethereum) {
-          console.log("Make sure you have metamask!");
-          return;
-      } else {
-          console.log("We have the ethereum object", ethereum);
+  const checkIfWalletIsConnected = async () => {
+
+    if (!ethereum) {
+      console.log("Make sure you have metamask!");
+      return;
+    } else {
+      console.log("We have the ethereum object", ethereum);
+    }
+
+    const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+    if (accounts.length !== 0) {
+
+      const account = accounts[0];
+      console.log("Found an authorized account:", account);
+      setCurrentAccount(account);
+
+      if (await isConnectedToRinkeyby()) {
+        await setMintStat();
       }
-
-      const accounts = await ethereum.request({ method: 'eth_accounts' });
-
-      if (accounts.length !== 0) {
-          const account = accounts[0];
-          console.log("Found an authorized account:", account);
-					setCurrentAccount(account)
-          
-          // Setup listener! This is for the case where a user comes to our site
-          // and ALREADY had their wallet connected + authorized.
-          setupEventListener()
-      } else {
-          console.log("No authorized account found")
+      else {
+        alert("You are not connected to the Rinkeby Test Network!");
+        return;
       }
+      // Setup listener! This is for the case where a user comes to our site
+      // and ALREADY had their wallet connected + authorized.
+      setupEventListener();
+
+    } else {
+      console.log("No authorized account found")
+    }
+  }
+  const isConnectedToRinkeyby = async () => {
+
+    let chainId = await ethereum.request({ method: 'eth_chainId' });
+    console.log("Connected to chain " + chainId);
+
+    // String, hex code of the chainId of the Rinkebey test network
+    const rinkebyChainId = "0x4";
+
+    if (chainId == rinkebyChainId)
+      return true;
+    else
+      return false;
+
+
   }
 
   const connectWallet = async () => {
@@ -54,15 +80,31 @@ const App = () => {
 
       console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
+      await setMintStat();
 
       // Setup listener! This is for the case where a user comes to our site
       // and connected their wallet for the first time.
-      setupEventListener() 
+      setupEventListener()
     } catch (error) {
       console.log(error)
     }
   }
-
+  const setMintStat = async () => {
+    const MyEpicNFTContract = getContract();
+    if (MyEpicNFTContract) {
+      const totalMinted = await MyEpicNFTContract.getTotalNFTsMinted();
+      console.log('totalMinted:' + totalMinted);
+      const maxMint = await MyEpicNFTContract.maxMint();
+      if(totalMinted >= maxMint)
+        setMintButtonDisabled(true);
+      console.log('maxMint: ' + maxMint);
+      setMinted(totalMinted.toString());
+      setMaxMint(maxMint.toString());
+    }
+    else {
+      console.log('could not fetch mint state');
+    }
+  }
   // Setup our listener.
   const setupEventListener = async () => {
     // Most of this looks the same as our function askContractToMintNft
@@ -92,26 +134,33 @@ const App = () => {
       console.log(error)
     }
   }
+  const getContract = () => {
+    const { ethereum } = window;
 
+    if (ethereum) {
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
+      return connectedContract;
+    }
+    else {
+      console.log('ethereum object not found');
+      return null;
+    }
+  }
   const askContractToMintNft = async () => {
     try {
-      const { ethereum } = window;
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
-
+      const MyEpicNFTContract = getContract();
+      if (MyEpicNFTContract) {
         console.log("Going to pop wallet now to pay gas...")
-        let nftTxn = await connectedContract.makeAnEpicNFT();
+        let nftTxn = await MyEpicNFTContract.makeAnEpicNFT();
 
         console.log("Mining...please wait.")
         await nftTxn.wait();
         console.log(nftTxn);
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
-
       } else {
-        console.log("Ethereum object doesn't exist!");
+        window.alert("Ethereum object doesn't exist!")
       }
     } catch (error) {
       console.log(error)
@@ -119,8 +168,8 @@ const App = () => {
   }
 
 
-  useEffect(() => {
-    checkIfWalletIsConnected();
+  useEffect(async () => {
+    await checkIfWalletIsConnected();
   }, [])
 
   const renderNotConnectedContainer = () => (
@@ -130,9 +179,12 @@ const App = () => {
   );
 
   const renderMintUI = () => (
-    <button onClick={askContractToMintNft} className="cta-button connect-wallet-button">
-      Mint NFT
-    </button>
+    <div>
+      <p className="sub-text">{minted}/{maxMint} minted so far!</p>
+      <button id="mintBtn" onClick={askContractToMintNft} disabled={mintButtonDisabled} className="cta-button connect-wallet-button">
+        Mint NFT
+      </button>
+    </div>
   )
 
   return (

@@ -12,6 +12,7 @@ import {Base64} from "./libraries/Base64.sol";
 contract MyEpicNFT is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+    uint8 public constant maxMint = 2;
 
     // We split the SVG at the part where it asks for the background color.
     string svgPartOne =
@@ -92,7 +93,16 @@ contract MyEpicNFT is ERC721URIStorage {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function makeAnEpicNFT() public {
+    modifier isLessThanMaxMint() {
+        require(_tokenIds.current() < maxMint);
+        _;
+    }
+
+    function getTotalNFTsMinted() public view returns (uint256) {
+        return _tokenIds.current();
+    }
+
+    function makeAnEpicNFT() public isLessThanMaxMint {
         uint256 newItemId = _tokenIds.current();
 
         string memory first = pickRandomFirstWord(newItemId);
