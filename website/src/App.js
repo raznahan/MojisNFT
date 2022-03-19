@@ -155,6 +155,14 @@ const App = () => {
   }
   const askContractToMintNft = async () => {
     try {
+      if (await isConnectedToRinkeyby()) {
+        await setMintStat();
+      }
+      else {
+        alert("You are not connected to the Rinkeby Test Network!");
+        return;
+      }
+
       const MyEpicNFTContract = getContract();
       if (MyEpicNFTContract) {
         setLoaderClass("fa fa-spinner fa-spin");
@@ -206,13 +214,13 @@ const App = () => {
           </p>
           {currentAccount === "" ? renderNotConnectedContainer() : renderMintUI()}
         </div>
-        { 
-         openseaLinkHidden === true ? "" :
-          <div>
-            <a href={openseaLinkHref} target="_blank" className="opensea-link">
-              🌊 View Collection on OpenSea
-            </a>
-          </div>
+        {
+          openseaLinkHidden === true ? "" :
+            <div>
+              <a href={openseaLinkHref} target="_blank" className="opensea-link">
+                🌊 View Collection on OpenSea
+              </a>
+            </div>
         }
 
         <div className="footer-container">
