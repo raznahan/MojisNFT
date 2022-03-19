@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import myEpicNft from './utils/MyEpicNFT.json';
 
-const TWITTER_HANDLE = '_buildspace';
+const TWITTER_HANDLE = 'bluemanblock';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_COLLECTION = 'squarenft-ydjy7w0vlu';
 const TOTAL_MINT_COUNT = 50;
@@ -209,7 +209,7 @@ const App = () => {
         { 
          openseaLinkHidden === true ? "" :
           <div>
-            <a href={openseaLinkHref}  className="opensea-link">
+            <a href={openseaLinkHref} target="_blank" className="opensea-link">
               🌊 View Collection on OpenSea
             </a>
           </div>
