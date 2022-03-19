@@ -4,7 +4,8 @@
   "description": "Mint NFTs",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd website && npm run start"
     },
   "engines": {
     "node": "16.14.0"
