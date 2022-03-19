@@ -6,7 +6,7 @@ import myEpicNft from './utils/MyEpicNFT.json';
 
 const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const OPENSEA_LINK = '';
+const OPENSEA_COLLECTION = 'squarenft-ydjy7w0vlu';
 const TOTAL_MINT_COUNT = 50;
 
 const CONTRACT_ADDRESS = "0xEC6Ef6062A8b3ba02257cFF35a9bB83A1bD239F4";
@@ -19,6 +19,8 @@ const App = () => {
   const [minted, setMinted] = useState("0");
   const [mintButtonDisabled, setMintButtonDisabled] = useState(false);
   const [loaderClass, setLoaderClass] = useState("");
+  const [openseaLinkHref, setOpenseaLinkHref] = useState("");
+  const [openseaLinkHidden, setOpenseaLinkHidden] = useState(true);
 
   const checkIfWalletIsConnected = async () => {
 
@@ -96,6 +98,8 @@ const App = () => {
       const totalMinted = await MyEpicNFTContract.getTotalNFTsMinted();
       console.log('totalMinted:' + totalMinted);
       const maxMint = await MyEpicNFTContract.maxMint();
+      if (Number(totalMinted) > 0)
+        showOpenseaLink();
       if (totalMinted >= maxMint)
         setMintButtonDisabled(true);
       console.log('maxMint: ' + maxMint);
@@ -106,6 +110,12 @@ const App = () => {
       console.log('could not fetch mint state');
     }
   }
+  const showOpenseaLink = () => {
+    console.log('showing open sea');
+    setOpenseaLinkHidden(false);
+    setOpenseaLinkHref(`https://testnets.opensea.io/collection/${OPENSEA_COLLECTION}`);
+
+  }
   // Setup our listener.
   const setupEventListener = async () => {
     // Most of this looks the same as our function askContractToMintNft
@@ -115,10 +125,11 @@ const App = () => {
       // This will essentially "capture" our event when our contract throws it.
       // If you're familiar with webhooks, it's very similar to that!
       MyEpicNFTContract.on("NewEpicNFTMinted", (from, tokenId) => {
+
         console.log(from, tokenId.toNumber())
         alert(`Hey there! We've minted your NFT and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on OpenSea. Here's the link: https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
       });
-     
+
       console.log("Setup event listener!");
 
     }
@@ -189,12 +200,21 @@ const App = () => {
     <div className="App">
       <div className="container">
         <div className="header-container">
-          <p className="header gradient-text">My NFT Collection</p>
+          <p className="header gradient-text">Moji's NFT Collection</p>
           <p className="sub-text">
             Each unique. Each beautiful. Discover your NFT today.
           </p>
           {currentAccount === "" ? renderNotConnectedContainer() : renderMintUI()}
         </div>
+        { 
+         openseaLinkHidden === true ? "" :
+          <div>
+            <a href={openseaLinkHref}  className="opensea-link">
+              🌊 View Collection on OpenSea
+            </a>
+          </div>
+        }
+
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
