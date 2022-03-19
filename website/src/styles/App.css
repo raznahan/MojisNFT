@@ -49,9 +49,13 @@
 }
 
 .connect-wallet-button {
-  background: -webkit-linear-gradient(left, #60c657, #35aee2);
+  background: -webkit-linear-gradient(left, #60c657, #35aee2); 
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 12px 24px; /* Some padding */
+  font-size: 16px; /* Set a font-size */
 }
 
 .mint-button {
@@ -88,6 +92,17 @@
   font-size: 16px;
   font-weight: bold;
 }
+
+.buttonload {
+  
+}
+
+/* Add a right margin to each icon */
+.fa {
+  margin-left: -12px;
+  margin-right: 8px;
+}
+
 
 /* KeyFrames */
 @-webkit-keyframes gradient-animation {
