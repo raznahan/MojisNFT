@@ -63,7 +63,6 @@ contract MyEpicNFT is ERC721URIStorage {
         rand = rand % secondWords.length;
         return secondWords[rand];
     }
-
     function pickRandomThirdWord(uint256 tokenId)
         public
         view
